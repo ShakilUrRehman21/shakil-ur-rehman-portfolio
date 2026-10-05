@@ -1,571 +1,290 @@
 "use client";
 import React, { useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
 
 export default function ProjectsSection({ theme, onSelectProject, playSound }) {
-  const [activeTab, setActiveTab] = useState("all"); // "all", "ai", "fullstack"
 
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-    playSound && playSound("pop");
-  };
 
   const isDark = theme === "dark";
   const tabColor = isDark ? "#FFFFFF" : "#000000";
+
+  // All 8 projects with actual images from public/
+  const allProjects = [
+    {
+      id: "repolens",
+      title: "RepoLens",
+      subtitle: "AI Code Intelligence & 360° Diagnostics",
+      category: "ai",
+      badge: "Groq LPU & AST Diagnostics",
+      badgeColor: "bg-[#D4F63C]/20 text-[#D4F63C] border-[#D4F63C]/40",
+      image: "/repolens.png",
+      liveUrl: "https://repo-lens-sooty.vercel.app/",
+      tags: ["Next.js 14", "Groq LPU", "AST Engine", "GitHub Webhooks"],
+      description: "Production code intelligence platform scanning GitHub repos with high-throughput LPU models to detect architecture flaws, security CVEs, and technical debt with automated PR review bots."
+    },
+    {
+      id: "digitalmemoryvault",
+      title: "Digital Memory Vault",
+      subtitle: "Behavioral Decision Intelligence & Calibration Engine",
+      category: "ai",
+      badge: "Decision Intelligence & Brier Scoring",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/40",
+      image: "/digital-memory-vault.png",
+      liveUrl: "https://digital-memory-vault-weld.vercel.app/",
+      tags: ["Next.js 14", "TypeScript", "Brier Calibration", "PostgreSQL"],
+      description: "Behavioral analytics and decision intelligence platform for founders and operators. Enforces pre-commitment logging (confidence, risk, emotional state) at T=0, computes mathematical Brier calibration scores against actual outcomes, and detects cognitive bias patterns."
+    },
+    {
+      id: "crashledger",
+      title: "CrashLedger",
+      subtitle: "Operational Failure Intelligence Platform",
+      category: "fullstack",
+      badge: "SRE Incident Lifecycle Engine",
+      badgeColor: "bg-[#FA5A2A]/20 text-[#FA5A2A] border-[#FA5A2A]/40",
+      image: "/crashledger.png",
+      liveUrl: "https://crash-ledger.vercel.app/",
+      tags: ["Next.js 16", "PostgreSQL", "Drizzle ORM", "MTTR: 38m"],
+      description: "Operational failure intelligence platform enforcing root cause analysis, tracking recurring component breakdown risks, and calculating rolling MTTR across production systems."
+    },
+    {
+      id: "coursegen",
+      title: "CourseGen AI",
+      subtitle: "Autonomous Curriculum & Video Platform",
+      category: "ai",
+      badge: "Autonomous AI Platform",
+      badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30",
+      image: "/coursegen-ai.png",
+      liveUrl: "https://course-gen-ai-ten.vercel.app/",
+      tags: ["Next.js 14", "Gemini API", "PostgreSQL", "Drizzle ORM"],
+      description: "Autonomous course creation platform generating complete multi-chapter curricula with integrated YouTube educational video search, Neon PostgreSQL & Clerk authentication."
+    },
+    {
+      id: "syncworld",
+      title: "SyncWorld",
+      subtitle: "Real-Time Distributed Collaborative Workspace",
+      category: "fullstack",
+      badge: "Real-Time Distributed System",
+      badgeColor: "bg-indigo-500/20 text-indigo-300 border-indigo-500/30",
+      image: "/syncworld.png",
+      liveUrl: "https://sync-world.onrender.com/",
+      tags: ["WebSockets", "OpenJDK 21", "Vector Canvas", "<60ms Sync"],
+      description: "Collaborative multi-tenant workspace with real-time vector whiteboard, remote cursor mesh, and an in-browser sandbox IDE with javac compiler diagnostics."
+    },
+    {
+      id: "prepmaster",
+      title: "PrepMaster Studio",
+      subtitle: "AI Technical & Behavioral Mock Interview",
+      category: "ai",
+      badge: "AI Mock Interview Studio",
+      badgeColor: "bg-sky-500/20 text-sky-300 border-sky-500/30",
+      image: "/prepmaster.png",
+      liveUrl: "https://prep-master-studio.vercel.app/",
+      tags: ["Next.js 15", "Web Speech", "STAR Rubric", "Gemini 1.5"],
+      description: "Executive technical and behavioral interview platform with continuous speech-to-text, live waveform telemetry, and automated Gemini 1.5 Flash diagnostic scorecards."
+    },
+    {
+      id: "threadmoderator",
+      title: "ThreadModerator",
+      subtitle: "WhatsApp Conversational Intelligence & NLP",
+      category: "ai",
+      badge: "Conversational Intelligence & NLP",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      image: "/threadmoderator.png",
+      liveUrl: "https://thread-moderator.onrender.com/",
+      tags: ["Python 3", "VADER Sentiment", "LDA Topics", "NetworkX"],
+      description: "Conversational intelligence platform transforming chat logs into actionable sentiment trajectories, Latent Dirichlet Allocation (LDA) topic models, and 2D social networks."
+    },
+    {
+      id: "milkmart",
+      title: "MilkMart Platform",
+      subtitle: "Cold-Chain Dairy E-Commerce System",
+      category: "fullstack",
+      badge: "Cold-Chain Dairy E-Commerce",
+      badgeColor: "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+      image: "/milkmart.png",
+      liveUrl: "https://milkmart-platform.onrender.com/",
+      tags: ["Django 5", "Python 3", "Razorpay Gateway", "Docker"],
+      description: "Farm-fresh dairy commerce ecosystem featuring cold-chain morning fulfillment, dual payment checkout (Razorpay + zero-failure checkout), and dynamic AJAX carts."
+    },
+    {
+      id: "framershowcase",
+      title: "Framer Components Lab",
+      subtitle: "WebGL, 3D Shaders & Motion Systems",
+      category: "fullstack",
+      badge: "10 Live Smart Components",
+      badgeColor: "bg-cyan-500/20 text-cyan-300 border-cyan-500/30",
+      image: "/framer.png",
+      liveUrl: "https://framer-showcase-two.vercel.app/",
+      tags: ["Three.js", "GLSL Shaders", "Framer Motion", "60 FPS"],
+      description: "Curated suite of 10 production-grade WebGL, Three.js shaders, Perlin noise typography, and spring physics Framer smart components with live device preview."
+    }
+  ];
+
+  // The 4 top featured projects displayed on the main page
+  const featuredProjects = allProjects.slice(0, 4);
 
   return (
     <section id="projects" className="w-full pt-6 sm:pt-8 pb-12 sm:pb-16 px-4 sm:px-6 md:px-12 flex justify-center">
       <div className="max-w-6xl w-full">
 
-        {/* Centered Top Filter Tabs */}
-        <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-8 mb-8 sm:mb-12 flex-wrap">
-          {/* "Featured Projects" Tab */}
-          <button
-            onClick={() => handleTabChange("all")}
-            className="relative pb-2 font-semibold text-sm sm:text-base md:text-lg transition-colors cursor-pointer"
+        {/* Section Header */}
+        <div className="flex flex-col items-center text-center mb-8 sm:mb-12">
+          <h2
+            className="doodle-font text-3xl sm:text-4xl md:text-5xl tracking-wide mb-2 transition-colors duration-300"
             style={{ color: tabColor }}
           >
-            <span>All Projects</span>
-            {activeTab === "all" && (
-              <span className="absolute bottom-0 left-0 right-0 h-[3.5px] bg-[#E5A823] rounded-full"></span>
-            )}
-          </button>
-
-          {/* "AI & LLM Systems" Tab */}
-          <button
-            onClick={() => handleTabChange("ai")}
-            className="relative pb-2 font-semibold text-sm sm:text-base md:text-lg flex items-center gap-2 transition-colors cursor-pointer"
-            style={{ color: tabColor }}
-          >
-            <span>AI & LLM Systems</span>
-            {activeTab === "ai" && (
-              <span className="absolute bottom-0 left-0 right-0 h-[3.5px] bg-[#E5A823] rounded-full"></span>
-            )}
-          </button>
-
-          {/* "Distributed & Web" Tab */}
-          <button
-            onClick={() => handleTabChange("fullstack")}
-            className="relative pb-2 font-semibold text-sm sm:text-base md:text-lg flex items-center gap-2 transition-colors cursor-pointer"
-            style={{ color: tabColor }}
-          >
-            <span>Real-time & Full Stack</span>
-            {activeTab === "fullstack" && (
-              <span className="absolute bottom-0 left-0 right-0 h-[3.5px] bg-[#E5A823] rounded-full"></span>
-            )}
-          </button>
+            Featured Projects
+          </h2>
+          <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 max-w-lg">
+            A curated selection of live, production-grade applications built with modern distributed architectures, AI pipelines, and fluid interfaces.
+          </p>
         </div>
 
-        {/* Project Cards Grid */}
+        {/* 2x2 Grid of Featured Projects with Real Platform Images */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
-
-          {/* ================= CARD 1: CourseGen AI ================= */}
-          {(activeTab === "all" || activeTab === "ai") && (
-            <div
-              onClick={() => {
-                playSound && playSound("pop");
-                onSelectProject && onSelectProject("coursegen");
-              }}
-              className="
-      group relative
-      rounded-3xl
-      bg-[#0F172A]
-      text-white
-      p-5 sm:p-7 md:p-8
-      flex flex-col
-      overflow-hidden
-      shadow-lg
-      border border-slate-800
-      transition-all duration-300
-      hover:-translate-y-1
-      hover:shadow-2xl
-      cursor-pointer
-      h-full
-      min-h-[460px]
-    "
-            >
-              {/* Top Badges */}
-              <div className="flex items-center justify-between mb-5 gap-2 flex-wrap shrink-0">
-                <span className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                  Featured AI Platform
-                </span>
-
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-                    Next.js 14
+          {featuredProjects.map((project, idx) => {
+            const isBlack = idx % 4 === 0 || idx % 4 === 3;
+            return (
+              <div
+                key={project.id}
+                onClick={() => {
+                  playSound && playSound("pop");
+                  onSelectProject && onSelectProject(project.id);
+                }}
+                className={`group relative rounded-3xl p-5 sm:p-6 md:p-7 flex flex-col justify-between overflow-hidden shadow-lg transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer ${
+                  isBlack
+                    ? "bg-[#0E1015] text-white border-2 border-black/80 dark:border-white/20"
+                    : "bg-white text-neutral-900 border-2 border-black dark:border-white/30"
+                }`}
+              >
+                {/* Top Badges & Live Link */}
+                <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
+                  <span
+                    className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${
+                      isBlack
+                        ? project.badgeColor
+                        : "bg-neutral-100 text-neutral-800 border-neutral-300"
+                    }`}
+                  >
+                    {project.badge}
                   </span>
 
-                  <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700">
-                    Gemini API
-                  </span>
+                  <a
+                    href={project.liveUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      playSound && playSound("whoosh");
+                    }}
+                    className={`px-2.5 py-1 rounded-full text-xs font-semibold border transition-all flex items-center gap-1 ${
+                      isBlack
+                        ? "bg-white/10 hover:bg-white text-white hover:text-black border-white/20"
+                        : "bg-black/5 hover:bg-black text-black hover:text-white border-black/20"
+                    }`}
+                  >
+                    <span>Live App</span>
+                    <span>↗</span>
+                  </a>
                 </div>
-              </div>
 
-              {/* Card Content */}
-              <div className="mb-5 z-10 shrink-0">
-                <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 text-white flex flex-wrap items-center gap-2">
-                  <span>CourseGen AI</span>
+                {/* Title & Description */}
+                <div className="mb-4">
+                  <h3
+                    className={`text-xl sm:text-2xl font-bold tracking-tight mb-1 flex items-center gap-2 ${
+                      isBlack ? "text-white" : "text-black"
+                    }`}
+                  >
+                    <span>{project.title}</span>
+                  </h3>
+                  <p
+                    className={`text-xs font-mono mb-2 ${
+                      isBlack ? "text-emerald-400" : "text-emerald-600 dark:text-emerald-500 font-semibold"
+                    }`}
+                  >
+                    {project.subtitle}
+                  </p>
+                  <p
+                    className={`text-xs sm:text-sm leading-relaxed font-normal ${
+                      isBlack ? "text-slate-300" : "text-neutral-700"
+                    }`}
+                  >
+                    {project.description}
+                  </p>
+                </div>
 
-                  <span className="text-xs font-normal text-emerald-400 font-mono">
-                    v1.0 Live
-                  </span>
-                </h3>
-
-                <p className="text-sm md:text-base text-slate-300 leading-relaxed max-w-md">
-                  Autonomous AI course creation platform generating complete
-                  multi-chapter curricula with integrated YouTube educational search,
-                  Neon PostgreSQL & Clerk.
-                </p>
-              </div>
-
-              {/* Visual: Curriculum Dashboard UI Mockup */}
-              <div className="relative w-full flex-1 min-h-[220px] flex items-end justify-center mt-auto">
+                {/* STRICTLY ACTUAL PLATFORM IMAGE SHOWCASE */}
                 <div
-                  className="
-          w-full
-          max-w-[390px]
-          min-h-[210px]
-          bg-slate-900
-          border-2 border-slate-700/80
-          rounded-t-2xl
-          p-3
-          shadow-2xl
-          flex flex-col
-          transition-transform
-          group-hover:-translate-y-1
-        "
+                  className={`relative w-full aspect-[16/10] rounded-2xl overflow-hidden shadow-xl my-2 border ${
+                    isBlack
+                      ? "border-slate-700/80 bg-slate-950"
+                      : "border-black/15 bg-neutral-100"
+                  }`}
                 >
-                  {/* Header */}
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2 gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="w-2.5 h-2.5 shrink-0 rounded-full bg-emerald-400 animate-pulse" />
-
-                      <span className="text-xs font-bold text-slate-200 truncate">
-                        AI Curriculum Studio
-                      </span>
-                    </div>
-
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 whitespace-nowrap shrink-0">
-                      Gemini Flash
-                    </span>
-                  </div>
-
-                  {/* Curriculum Content */}
-                  <div className="space-y-2 my-2">
-                    {/* Main Course */}
-                    <div className="p-2 rounded-xl bg-slate-800/80 border border-slate-700/60 flex items-center justify-between gap-2">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <span className="text-base shrink-0">📚</span>
-
-                        <div className="min-w-0">
-                          <p className="text-xs font-semibold text-white truncate">
-                            Full-Stack Distributed Systems
-                          </p>
-
-                          <p className="text-[9px] text-slate-400 truncate">
-                            5 Chapters • Targeted Video Matched
-                          </p>
-                        </div>
-                      </div>
-
-                      <span className="text-[10px] text-emerald-400 font-bold bg-emerald-950/60 px-2 py-0.5 rounded whitespace-nowrap shrink-0">
-                        100% Ready
-                      </span>
-                    </div>
-
-                    {/* Database / ORM */}
-                    <div className="grid grid-cols-2 gap-2 text-[10px]">
-                      <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/40 text-slate-300 min-w-0">
-                        <span className="block text-[8px] text-slate-400 uppercase">
-                          Database
-                        </span>
-
-                        <span className="font-semibold text-white truncate block">
-                          Neon PostgreSQL
-                        </span>
-                      </div>
-
-                      <div className="p-2 rounded-lg bg-slate-800/50 border border-slate-700/40 text-slate-300 min-w-0">
-                        <span className="block text-[8px] text-slate-400 uppercase">
-                          ORM
-                        </span>
-
-                        <span className="font-semibold text-white truncate block">
-                          Drizzle ORM
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="w-full bg-slate-800/90 rounded-lg p-1.5 flex items-center justify-between gap-2 text-[10px] text-slate-300 border border-slate-700/50 mt-auto">
-                    <span className="truncate">
-                      ⚡ Chapter Generation with Code & Concepts
-                    </span>
-
-                    <span className="text-emerald-400 font-semibold whitespace-nowrap">
-                      View Case Study →
-                    </span>
-                  </div>
+                  <Image
+                    src={project.image}
+                    alt={`${project.title} live interface`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 500px"
+                    className="object-cover object-top opacity-100 transition-transform duration-500 group-hover:scale-[1.03]"
+                  />
                 </div>
-              </div>
-            </div>
-          )}
 
-          {/* ================= CARD 2: TorqueVault ================= */}
-          {(activeTab === "all" || activeTab === "fullstack") && (
-            <div
-              onClick={() => {
-                playSound && playSound("pop");
-                onSelectProject && onSelectProject("torquevault");
-              }}
-              className="group relative rounded-3xl bg-[#141217] text-white p-5 sm:p-7 md:p-8 flex flex-col justify-between overflow-hidden shadow-lg border border-[#3b0d13] transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer min-h-[420px] sm:min-h-[460px]"
-            >
-              {/* Top Badges */}
-              <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-                <span className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-[#75020f]/40 text-[#ff4d64] border border-[#e61932]/40">
-                  Web Audio Synthesizer
-                </span>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-neutral-900 text-neutral-300 border border-neutral-700">
-                    Vanilla JS
-                  </span>
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-neutral-900 text-neutral-300 border border-neutral-700">
-                    60 FPS HUD
-                  </span>
-                </div>
-              </div>
-
-              {/* Card Content */}
-              <div className="mb-4 z-10">
-                <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 text-white flex items-center gap-2">
-                  TorqueVault
-                  <span className="text-xs font-normal text-rose-400 font-mono">9,200 RPM</span>
-                </h3>
-                <p className="text-sm md:text-base text-neutral-300 leading-relaxed max-w-md">
-                  Pinnacle supercar telemetry platform with procedural Web Audio V8 engine acoustics, 3D tilt perspective cards, and head-to-head 1/4 mile drag strip showdowns.
-                </p>
-              </div>
-
-              {/* Visual: Tachometer Gauge & Engine HUD */}
-              <div className="relative w-full h-56 flex items-center justify-center">
-                <div className="relative w-52 h-44 bg-[#19171b] rounded-2xl border border-red-950/80 p-3 shadow-2xl flex flex-col items-center justify-between transition-transform group-hover:scale-105">
-                  <div className="w-full flex justify-between items-center text-[10px] text-neutral-400 border-b border-neutral-800 pb-1.5 font-mono">
-                    <span className="text-red-500 font-bold">● V8 ACOUSTICS</span>
-                    <span>1/4 MILE TRAP</span>
-                  </div>
-
-                  <div className="relative w-28 h-28 flex items-center justify-center">
-                    <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
-                      <circle cx="50" cy="50" r="40" stroke="#331417" strokeWidth="8" fill="none" />
-                      <circle
-                        cx="50" cy="50" r="40"
-                        stroke="#e61932"
-                        strokeWidth="8"
-                        fill="none"
-                        strokeDasharray="251.2"
-                        strokeDashoffset="75"
-                        strokeLinecap="round"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-xl font-mono font-bold text-white tracking-wider">8,450</span>
-                      <span className="text-[9px] text-neutral-400 font-mono uppercase">RPM</span>
-                    </div>
-                  </div>
-
-                  <div className="w-full flex justify-between text-[9px] font-mono text-neutral-300 bg-[#2b0307]/60 px-2 py-1 rounded">
-                    <span>GEAR: <strong className="text-white">4th</strong></span>
-                    <span className="text-rose-400 font-semibold">208 MPH</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================= CARD 3: SyncWorld ================= */}
-          {(activeTab === "all" || activeTab === "fullstack") && (
-            <div
-              onClick={() => {
-                playSound && playSound("pop");
-                onSelectProject && onSelectProject("syncworld");
-              }}
-              className="
-      group relative
-      rounded-3xl
-      bg-[#090D16]
-      text-white
-      p-5 sm:p-7 md:p-8
-      flex flex-col
-      overflow-hidden
-      shadow-lg
-      border border-indigo-950
-      transition-all duration-300
-      hover:-translate-y-1
-      hover:shadow-2xl
-      cursor-pointer
-      h-full
-      min-h-[460px]
-    "
-            >
-              {/* Top Badges */}
-              <div className="flex items-center justify-between mb-5 gap-2 flex-wrap shrink-0">
-                <span className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                  Real-Time Distributed System
-                </span>
-
-                <div className="flex items-center gap-2">
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-slate-900 text-slate-300 border border-slate-700">
-                    WebSockets
-                  </span>
-
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-slate-900 text-slate-300 border border-slate-700">
-                    OpenJDK 21
-                  </span>
-                </div>
-              </div>
-
-              {/* Card Content */}
-              <div className="mb-5 z-10 shrink-0">
-                <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 text-white flex flex-wrap items-center gap-2">
-                  <span>SyncWorld</span>
-
-                  <span className="text-xs font-normal text-indigo-400 font-mono">
-                    &lt;60ms Sync
-                  </span>
-                </h3>
-
-                <p className="text-sm md:text-base text-slate-300 leading-relaxed max-w-md">
-                  Collaborative multi-tenant workspace with real-time vector
-                  whiteboard, remote cursor mesh, and an in-browser sandbox IDE
-                  with javac compiler diagnostics.
-                </p>
-              </div>
-
-              {/* Visual */}
-              <div className="relative w-full flex-1 min-h-[220px] flex items-end justify-center mt-auto">
+                {/* Tags & Action Link */}
                 <div
-                  className="
-          w-full
-          max-w-[400px]
-          min-h-[210px]
-          bg-slate-950
-          border border-indigo-900/60
-          rounded-t-2xl
-          p-3
-          shadow-2xl
-          flex flex-col
-          transition-transform
-          group-hover:-translate-y-1
-        "
+                  className={`pt-3 mt-2 border-t flex items-center justify-between text-xs font-mono ${
+                    isBlack ? "border-slate-800" : "border-black/10"
+                  }`}
                 >
-                  {/* Header */}
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2 gap-2">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="w-2.5 h-2.5 shrink-0 rounded-full bg-indigo-500 animate-pulse" />
-
-                      <span className="text-xs font-mono font-bold text-slate-200 truncate">
-                        Main.java • ws://connected
+                  <div className="flex flex-wrap gap-1.5">
+                    {project.tags.slice(0, 3).map((tag) => (
+                      <span
+                        key={tag}
+                        className={`px-2 py-0.5 rounded-md text-[10px] border ${
+                          isBlack
+                            ? "bg-slate-900 text-slate-300 border-slate-800"
+                            : "bg-neutral-100 text-neutral-800 border-neutral-300"
+                        }`}
+                      >
+                        {tag}
                       </span>
-                    </div>
-
-                    <div className="flex items-center -space-x-1 shrink-0">
-                      <span className="w-5 h-5 rounded-full bg-emerald-500 text-[9px] flex items-center justify-center font-bold">
-                        MV
-                      </span>
-
-                      <span className="w-5 h-5 rounded-full bg-amber-500 text-[9px] flex items-center justify-center font-bold">
-                        ER
-                      </span>
-                    </div>
+                    ))}
                   </div>
-
-                  {/* Code */}
-                  <div className="bg-slate-900/90 rounded-lg p-2.5 font-mono text-[10px] text-slate-300 border border-slate-800 my-2 space-y-1 overflow-hidden">
-                    <p className="text-indigo-400 font-semibold">
-                      public class Main &#123;
-                    </p>
-
-                    <p className="pl-3 text-slate-300">
-                      public static void main(String[] args) &#123;
-                    </p>
-
-                    <p className="pl-6 text-emerald-400 break-words">
-                      System.out.println("SyncWorld Mesh OK"); // javac clean
-                    </p>
-
-                    <p className="pl-3 text-slate-300">
-                      &#125;
-                    </p>
-
-                    <p className="text-indigo-400">
-                      &#125;
-                    </p>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="w-full bg-indigo-950/60 rounded p-1.5 flex items-center justify-between gap-2 text-[10px] text-indigo-200 border border-indigo-900/50 mt-auto">
-                    <span className="truncate">
-                      📡 Multi-peer Vector Canvas & Remote Cursors
-                    </span>
-
-                    <span className="text-indigo-400 font-bold whitespace-nowrap">
-                      Inspect Details →
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================= CARD 4: PrepMaster Studio ================= */}
-          {(activeTab === "all" || activeTab === "ai") && (
-            <div
-              onClick={() => {
-                playSound && playSound("pop");
-                onSelectProject && onSelectProject("prepmaster");
-              }}
-              className="group relative rounded-3xl bg-[#0F141C] text-white p-5 sm:p-7 md:p-8 flex flex-col justify-between overflow-hidden shadow-lg border border-slate-800 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer min-h-[420px] sm:min-h-[460px]"
-            >
-              {/* Top Badges */}
-              <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-                <span className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                  AI Mock Interview Studio
-                </span>
-                <div className="flex items-center gap-2">
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-slate-900 text-slate-300 border border-slate-700">
-                    Next.js 15
-                  </span>
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-slate-900 text-slate-300 border border-slate-700">
-                    Speech-to-Text
+                  <span
+                    className={`font-semibold group-hover:underline whitespace-nowrap ml-2 ${
+                      isBlack
+                        ? "text-emerald-400"
+                        : "text-emerald-600 dark:text-emerald-500"
+                    }`}
+                  >
+                    Case Study →
                   </span>
                 </div>
               </div>
+            );
+          })}
+        </div>
 
-              {/* Card Content */}
-              <div className="mb-4 z-10">
-                <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 text-white flex items-center gap-2">
-                  PrepMaster Studio
-                  <span className="text-xs font-normal text-sky-400 font-mono">STAR Method</span>
-                </h3>
-                <p className="text-sm md:text-base text-slate-300 leading-relaxed max-w-md">
-                  Executive technical and behavioral interview platform with continuous speech-to-text, live waveform telemetry, and automated Gemini 1.5 Flash diagnostic scorecards.
-                </p>
-              </div>
+        {/* ============================================================== */}
+        {/* SHOW MORE WORK BUTTON (Opens the All-Projects Gallery Space) */}
+        {/* ============================================================== */}
+        <div className="w-full flex flex-col items-center justify-center mt-10 sm:mt-14">
+          <Link
+            href="/projects"
+            onClick={() => playSound && playSound("whoosh")}
+            className="group px-7 sm:px-9 py-4 rounded-2xl bg-white dark:bg-neutral-900 text-black dark:text-white border-2 border-black dark:border-white/50 shadow-[0_8px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.18)] transition-all hover:-translate-y-1 active:scale-[0.98] cursor-pointer inline-flex items-center gap-3 font-semibold text-base sm:text-lg"
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span className="doodle-font text-xl sm:text-2xl font-normal">Show More</span>
 
-              {/* Visual: Live Audio Waveform & Scorecard HUD */}
-              <div className="relative w-full h-56 flex items-end justify-center mt-2">
-                <div className="w-full max-w-[400px] h-52 bg-slate-900 border border-sky-900/50 rounded-t-2xl p-3 shadow-2xl flex flex-col justify-between transition-transform group-hover:-translate-y-1">
-                  <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                    <span className="text-xs font-bold text-sky-300">Live Mock Simulation</span>
-                    <span className="px-2 py-0.5 rounded bg-sky-950 text-sky-400 text-[10px] font-mono border border-sky-800">
-                      Mic Recording
-                    </span>
-                  </div>
-
-                  <div className="my-2 p-2.5 rounded-xl bg-slate-950 border border-slate-800">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-[10px] text-slate-400">Audio Speech Recognition</span>
-                      <span className="text-[10px] text-emerald-400 font-bold">Score: 92/100</span>
-                    </div>
-                    {/* Audio wave simulation bars */}
-                    <div className="flex items-center justify-center gap-1.5 h-8">
-                      {[40, 70, 90, 60, 100, 75, 45, 85, 95, 65, 30, 80, 50].map((h, i) => (
-                        <span
-                          key={i}
-                          className="w-1.5 bg-sky-400 rounded-full transition-all duration-300"
-                          style={{ height: `${h}%` }}
-                        ></span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="w-full bg-slate-950/80 rounded p-1.5 flex justify-between text-[10px] text-slate-300 border border-slate-800">
-                    <span>📋 STAR Framework Diagnostic Feedback</span>
-                    <span className="text-sky-400 font-semibold">View Rubric →</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ================= CARD 5: MilkMart Platform ================= */}
-          {(activeTab === "all" || activeTab === "fullstack") && (
-            <div
-              onClick={() => {
-                playSound && playSound("pop");
-                onSelectProject && onSelectProject("milkmart");
-              }}
-              className="group relative rounded-3xl bg-[#0E1B15] text-white p-5 sm:p-7 md:p-8 flex flex-col justify-between overflow-hidden shadow-lg border border-emerald-950 transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl cursor-pointer min-h-[420px] sm:min-h-[460px] md:col-span-2"
-            >
-              {/* Top Badges */}
-              <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-                <span className="px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                  Django E-Commerce System
-                </span>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-neutral-900 text-neutral-300 border border-neutral-700">
-                    Python 3 / Django
-                  </span>
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-neutral-900 text-neutral-300 border border-neutral-700">
-                    Razorpay Gateway
-                  </span>
-                  <span className="px-2 sm:px-2.5 py-1 rounded-full text-[11px] sm:text-xs font-medium bg-neutral-900 text-neutral-300 border border-neutral-700 hidden sm:inline">
-                    Cold-Chain Logistics
-                  </span>
-                </div>
-              </div>
-
-              {/* Card Content */}
-              <div className="mb-4 z-10 max-w-2xl">
-                <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-2 text-white flex items-center gap-2">
-                  MilkMart Platform
-                  <span className="text-xs font-normal text-emerald-400 font-mono">Full Stack E-Commerce</span>
-                </h3>
-                <p className="text-sm md:text-base text-emerald-100/90 leading-relaxed">
-                  Farm-fresh dairy commerce ecosystem featuring cold-chain morning fulfillment, dual payment checkout (Razorpay + zero-failure instant checkout), dynamic AJAX carts, and customer order lifecycle tracking.
-                </p>
-              </div>
-
-              {/* Visual: Order Lifecycle Stepper & Dashboard */}
-              <div className="relative w-full h-44 flex items-center justify-center mt-2">
-                <div className="w-full max-w-2xl bg-neutral-950/80 border border-emerald-900/60 rounded-2xl p-3 sm:p-4 shadow-xl flex flex-col justify-between">
-                  <div className="flex items-center justify-between text-[11px] sm:text-xs text-neutral-400 border-b border-neutral-800 pb-2 font-mono">
-                    <span className="text-emerald-400 font-bold truncate">ORDER FULFILLMENT PIPELINE</span>
-                    <span className="whitespace-nowrap">100% ORGANIC</span>
-                  </div>
-
-                  {/* 4-Stage Lifecycle Stepper */}
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 my-2.5 sm:my-3 text-center">
-                    <div className="p-1.5 sm:p-2 rounded-xl bg-emerald-950/80 border border-emerald-800/80">
-                      <span className="text-emerald-400 font-bold text-[11px] sm:text-xs block">✓ Accepted</span>
-                      <span className="text-[8px] sm:text-[9px] text-neutral-400">Order Placed</span>
-                    </div>
-                    <div className="p-1.5 sm:p-2 rounded-xl bg-emerald-950/80 border border-emerald-800/80">
-                      <span className="text-emerald-400 font-bold text-[11px] sm:text-xs block">✓ Packed</span>
-                      <span className="text-[8px] sm:text-[9px] text-neutral-400">4°C Cold Chain</span>
-                    </div>
-                    <div className="p-1.5 sm:p-2 rounded-xl bg-emerald-900/40 border border-emerald-700/60 animate-pulse">
-                      <span className="text-emerald-300 font-bold text-[11px] sm:text-xs block">🚚 On The Way</span>
-                      <span className="text-[8px] sm:text-[9px] text-emerald-200">Morning Express</span>
-                    </div>
-                    <div className="p-1.5 sm:p-2 rounded-xl bg-neutral-900 border border-neutral-800">
-                      <span className="text-neutral-400 font-bold text-[11px] sm:text-xs block">Delivered</span>
-                      <span className="text-[8px] sm:text-[9px] text-neutral-500">Doorstep Verification</span>
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center text-[9px] sm:text-[10px] text-emerald-300">
-                    <span className="truncate">⚡ Production: Gunicorn + Docker</span>
-                    <span className="font-bold underline hover:text-white whitespace-nowrap ml-2">Explore Case Study →</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+            <span className="transition-transform group-hover:translate-x-1.5 font-bold">→</span>
+          </Link>
 
         </div>
 
       </div>
+
     </section>
   );
 }

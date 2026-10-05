@@ -102,6 +102,13 @@ export default function TopNav({ theme, onOpenResume, onOpenPlay, playSound }) {
           >
             Home
           </a>
+          <a 
+            href="#projects" 
+            onClick={() => playSound && playSound("pop")}
+            className="px-2.5 sm:px-3.5 py-1 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 text-black dark:text-white transition-colors whitespace-nowrap"
+          >
+            Projects
+          </a>
           <button 
             onClick={() => {
               playSound && playSound("pop");
@@ -111,13 +118,6 @@ export default function TopNav({ theme, onOpenResume, onOpenPlay, playSound }) {
           >
             Expertise
           </button>
-          <a 
-            href="#aboutMe" 
-            onClick={() => playSound && playSound("pop")}
-            className="px-2.5 sm:px-3.5 py-1 rounded-xl hover:bg-neutral-100 dark:hover:bg-neutral-800 text-black dark:text-white transition-colors whitespace-nowrap"
-          >
-            About Me
-          </a>
           <button 
             onClick={() => {
               playSound && playSound("pop");

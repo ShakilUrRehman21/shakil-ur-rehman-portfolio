@@ -15,14 +15,32 @@ export default function Home() {
   const [isPlayOpen, setIsPlayOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
 
-  // Sync theme to both class="dark" and data-theme="dark" on <html> element
+  // Sync theme from localStorage on initial load
+  useEffect(() => {
+    try {
+      const savedTheme = localStorage.getItem("portfolio_theme");
+      if (savedTheme === "dark" || savedTheme === "light") {
+        setTheme(savedTheme);
+      } else if (document.documentElement.classList.contains("dark")) {
+        setTheme("dark");
+      }
+    } catch (e) {}
+  }, []);
+
+  // Sync theme to class, attribute, and localStorage
   useEffect(() => {
     if (theme === "dark") {
       document.documentElement.classList.add("dark");
       document.documentElement.setAttribute("data-theme", "dark");
+      try {
+        localStorage.setItem("portfolio_theme", "dark");
+      } catch (e) {}
     } else {
       document.documentElement.classList.remove("dark");
       document.documentElement.setAttribute("data-theme", "light");
+      try {
+        localStorage.setItem("portfolio_theme", "light");
+      } catch (e) {}
     }
   }, [theme]);
 
@@ -108,9 +126,11 @@ export default function Home() {
           playSound={playSound}
         />
 
-        {/* Section Divider Line dividing Hero and Projects sections */}
-        <div className="max-w-6xl w-full mx-auto px-6 md:px-12 my-4">
-          <div className="w-full h-[2.5px] bg-black dark:bg-white/40 rounded-full"></div>
+        {/* Section Divider Line dividing Hero and Projects sections - matches Areas of Interest divider */}
+        <div className="w-full px-4 sm:px-6 md:px-12 my-4 sm:my-6">
+          <div className="max-w-6xl w-full mx-auto">
+            <div className="w-full h-[2.5px] bg-black dark:bg-white/40 rounded-full"></div>
+          </div>
         </div>
 
         {/* Projects 2x2 Showcase with Black Font and No 'New!' */}
