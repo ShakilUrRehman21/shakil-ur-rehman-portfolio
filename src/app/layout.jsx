@@ -1,4 +1,5 @@
 import { Plus_Jakarta_Sans, Patrick_Hand, JetBrains_Mono } from "next/font/google";
+import { Analytics } from '@vercel/analytics/next';
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -50,6 +51,7 @@ export default function RootLayout({ children }) {
       </head>
       <body className="antialiased selection:bg-amber-200 selection:text-black">
         {children}
+        <Analytics />
       </body>
     </html>
   );
