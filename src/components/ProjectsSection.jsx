@@ -197,9 +197,9 @@ export default function ProjectsSection({ theme, onSelectProject, playSound }) {
 
         {/* 
           Unified, Elevated Project Cards:
-          - No odd black/white checkerboard! Consistent, premium warm-white/obsidian surfaces
-          - Desktop: Clean 2-column grid (md:grid-cols-2)
-          - Mobile: STACKABLE Card Deck (sticky with progressive top offsets and z-index)
+          - Tactile STACKABLE Card Deck on scroll (sticky with progressive top offsets and z-indexes)
+          - Mobile: Compact 100% visible card layout with fluid touch interactions
+          - Desktop: Elegant split showcase with dynamic screenshot perspective
         */}
         <AnimatePresence mode="wait">
           <motion.div
@@ -208,89 +208,114 @@ export default function ProjectsSection({ theme, onSelectProject, playSound }) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="flex flex-col gap-6 md:grid md:grid-cols-2 md:gap-8"
+            className="w-full max-w-5xl mx-auto flex flex-col relative"
           >
             {currentList.map((project, idx) => {
               return (
                 <motion.div
                   key={project.id}
-                  initial={{ opacity: 0, y: 16 }}
+                  initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
+                  viewport={{ once: true, amount: 0.1 }}
                   transition={{ duration: 0.45, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                  whileHover={{ y: -6, transition: { duration: 0.2 } }}
                   onClick={() => {
                     playSound && playSound("pop");
                     onSelectProject && onSelectProject(project.id);
                   }}
-                  className="group rounded-[28px] sm:rounded-3xl p-5 sm:p-7 flex flex-col justify-between shadow-lg md:shadow-md md:hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white dark:bg-[#1C1C20] border-2 border-black dark:border-white/20"
+                  style={{
+                    top: `calc(74px + ${idx * 14}px)`,
+                    zIndex: 10 + idx,
+                  }}
+                  className="sticky group rounded-[24px] sm:rounded-3xl p-4 sm:p-6 md:p-8 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.6)] hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white dark:bg-[#1C1C20] border-2 border-black dark:border-white/20 mb-8 sm:mb-12 md:mb-16 last:mb-0"
                 >
-                  <div>
-                    {/* Top Bar: Category Pill & Live Link */}
-                    <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold border ${project.badgeStyle}`}>
-                        {project.badge}
-                      </span>
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-center">
+                    
+                    {/* Left/Content Column (7 cols on desktop) */}
+                    <div className="md:col-span-7 flex flex-col justify-between">
+                      <div>
+                        {/* Top Bar: Category Pill & Live Link */}
+                        <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2 flex-wrap">
+                          <span className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-semibold border ${project.badgeStyle}`}>
+                            {project.badge}
+                          </span>
 
-                      <motion.a
-                        href={project.liveUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          playSound && playSound("whoosh");
-                        }}
-                        className="px-3 py-1 rounded-full text-xs font-semibold border border-black/20 dark:border-white/20 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex items-center gap-1 text-black dark:text-white font-mono"
-                      >
-                        <span>Live App</span>
-                        <span>↗</span>
-                      </motion.a>
-                    </div>
+                          <motion.a
+                            href={project.liveUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              playSound && playSound("whoosh");
+                            }}
+                            className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-semibold border border-black/20 dark:border-white/20 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex items-center gap-1 text-black dark:text-white font-mono"
+                          >
+                            <span>Live App</span>
+                            <span>↗</span>
+                          </motion.a>
+                        </div>
 
-                    {/* Screenshot Viewport Frame with Subtle Inner Border and Hover Zoom */}
-                    <div className="rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 shadow-xs mb-5 bg-neutral-100 dark:bg-neutral-900 relative">
-                      <div className="relative w-full aspect-[16/10] overflow-hidden">
-                        <Image
-                          src={project.image}
-                          alt={`${project.title} live interface`}
-                          fill
-                          sizes="(max-width: 768px) 100vw, 550px"
-                          className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                        />
+                        {/* Mobile-Only Screenshot Viewport (Clean, compact, non-overflowing) */}
+                        <div className="block md:hidden mb-3.5 rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-xs bg-neutral-100 dark:bg-neutral-900 relative">
+                          <div className="relative w-full aspect-[16/9] overflow-hidden">
+                            <Image
+                              src={project.image}
+                              alt={`${project.title} live interface`}
+                              fill
+                              sizes="(max-width: 768px) 100vw, 450px"
+                              className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Strong, Authoritative Project Title & Architecture Subtitle */}
+                        <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight mb-1 text-black dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                          {project.title}
+                        </h3>
+                        <p className="text-xs sm:text-sm font-mono font-semibold text-emerald-600 dark:text-emerald-400 mb-2 sm:mb-2.5">
+                          {project.subtitle}
+                        </p>
+                        <p className="text-xs sm:text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 mb-4 line-clamp-2 sm:line-clamp-3 md:line-clamp-none">
+                          {project.description}
+                        </p>
+                      </div>
+
+                      {/* Card Footer: Tech Tags & Case Study Trigger */}
+                      <div className="pt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-xs font-mono gap-2 flex-wrap">
+                        <div className="flex flex-wrap gap-1 sm:gap-1.5">
+                          {project.tags.slice(0, 4).map((tag) => (
+                            <span
+                              key={tag}
+                              className="px-2 py-0.5 rounded-md text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 font-medium"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+
+                        <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 group-hover:underline text-xs sm:text-sm">
+                          <span>Case Study</span>
+                          <span className="transition-transform group-hover:translate-x-1 font-bold">→</span>
+                        </span>
                       </div>
                     </div>
 
-                    {/* Strong, Authoritative Project Title & Architecture Subtitle */}
-                    <h3 className="text-2xl sm:text-3xl font-extrabold tracking-tight mb-1 text-black dark:text-white group-hover:text-black dark:group-hover:text-white transition-colors">
-                      {project.title}
-                    </h3>
-                    <p className="text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400 mb-2.5">
-                      {project.subtitle}
-                    </p>
-                    <p className="text-xs sm:text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 mb-5">
-                      {project.description}
-                    </p>
-                  </div>
-
-                  {/* Card Footer: Tech Tags & Case Study Trigger */}
-                  <div className="pt-3.5 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-xs font-mono gap-2 flex-wrap">
-                    <div className="flex flex-wrap gap-1.5">
-                      {project.tags.slice(0, 3).map((tag) => (
-                        <span
-                          key={tag}
-                          className="px-2 py-0.5 rounded-md text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 font-medium"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                    {/* Desktop Screenshot Viewport (5 cols on desktop, hidden on mobile) */}
+                    <div className="hidden md:block md:col-span-5 w-full">
+                      <div className="rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 shadow-xs bg-neutral-100 dark:bg-neutral-900 relative">
+                        <div className="relative w-full aspect-[16/10] overflow-hidden">
+                          <Image
+                            src={project.image}
+                            alt={`${project.title} live interface`}
+                            fill
+                            sizes="500px"
+                            className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 group-hover:underline">
-                      <span>Case Study</span>
-                      <span className="transition-transform group-hover:translate-x-1 font-bold">→</span>
-                    </span>
                   </div>
                 </motion.div>
               );

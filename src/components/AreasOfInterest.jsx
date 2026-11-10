@@ -5,10 +5,26 @@ import { motion, AnimatePresence } from "framer-motion";
 export default function AreasOfInterest({ isCollapsed: controlledCollapsed, onToggle: controlledToggle, playSound }) {
   const [localCollapsed, setLocalCollapsed] = useState(false);
   const isCollapsed = controlledCollapsed !== undefined ? controlledCollapsed : localCollapsed;
-  const toggleCollapse = controlledToggle || (() => {
-    playSound && playSound(isCollapsed ? "pop" : "slide");
-    setLocalCollapsed((prev) => !prev);
-  });
+  const initialMountRef = React.useRef(true);
+  const [hasToggled, setHasToggled] = useState(false);
+
+  useEffect(() => {
+    if (initialMountRef.current) {
+      initialMountRef.current = false;
+      return;
+    }
+    setHasToggled(true);
+  }, [controlledCollapsed]);
+
+  const toggleCollapse = () => {
+    setHasToggled(true);
+    if (controlledToggle) {
+      controlledToggle();
+    } else {
+      playSound && playSound(isCollapsed ? "pop" : "slide");
+      setLocalCollapsed((prev) => !prev);
+    }
+  };
   const [activeDomainIndex, setActiveDomainIndex] = useState(0);
   const [triggerCount, setTriggerCount] = useState(0);
   const [terminalPhase, setTerminalPhase] = useState("ready"); // "running" | "ready"
@@ -154,15 +170,17 @@ export default function AreasOfInterest({ isCollapsed: controlledCollapsed, onTo
   };
 
   return (
-    <AnimatePresence initial={false}>
+    <AnimatePresence>
       {!isCollapsed && (
         <motion.section
           id="aboutMe"
           key="areas-section"
-          initial={{ height: 0, opacity: 0 }}
-          animate={{ height: "auto", opacity: 1 }}
+          initial={hasToggled ? { height: 0, opacity: 0 } : { opacity: 0, y: 36 }}
+          animate={hasToggled ? { height: "auto", opacity: 1 } : { opacity: 1, y: 0 }}
+          whileInView={!hasToggled ? { opacity: 1, y: 0 } : undefined}
           exit={{ height: 0, opacity: 0 }}
-          transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+          viewport={{ once: true, amount: 0.05 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
           className="w-full bg-[#276749] text-white pt-10 sm:pt-14 pb-14 sm:pb-20 px-4 sm:px-6 md:px-12 relative overflow-hidden select-none"
         >
           {/* Interactive Golden Drawer Tab at Center of Section (Matching Reference Image) */}
@@ -190,7 +208,7 @@ export default function AreasOfInterest({ isCollapsed: controlledCollapsed, onTo
                 <motion.div
                   initial={{ opacity: 0, y: 22 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-40px" }}
+                  viewport={{ once: true, amount: 0.05 }}
                   transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
                   className="flex items-center justify-between mb-4 sm:mb-6"
                 >
@@ -212,7 +230,7 @@ export default function AreasOfInterest({ isCollapsed: controlledCollapsed, onTo
                       type="button"
                       initial={{ opacity: 0, y: 16, scale: 0.96 }}
                       whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                      viewport={{ once: true, margin: "-40px" }}
+                      viewport={{ once: true, amount: 0.05 }}
                       transition={{ duration: 0.5, delay: 0.08 + idx * 0.06, ease: [0.22, 1, 0.36, 1] }}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.97 }}
@@ -237,7 +255,7 @@ export default function AreasOfInterest({ isCollapsed: controlledCollapsed, onTo
                 <motion.div
                   initial={{ opacity: 0, y: 28, scale: 0.98 }}
                   whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                  viewport={{ once: true, margin: "-40px" }}
+                  viewport={{ once: true, amount: 0.05 }}
                   transition={{ duration: 0.65, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                   className="w-full rounded-3xl bg-[#0C0E12] border-2 border-white/20 shadow-2xl overflow-hidden backdrop-blur-md flex flex-col text-neutral-200"
                 >
@@ -364,7 +382,7 @@ export default function AreasOfInterest({ isCollapsed: controlledCollapsed, onTo
               <motion.div
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-40px" }}
+                viewport={{ once: true, amount: 0.05 }}
                 transition={{ duration: 0.65, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
                 className="lg:col-span-6 flex flex-col justify-between h-full pt-2 sm:pt-4"
               >
@@ -395,7 +413,7 @@ export default function AreasOfInterest({ isCollapsed: controlledCollapsed, onTo
             <motion.div
               initial={{ scaleX: 0 }}
               whileInView={{ scaleX: 1 }}
-              viewport={{ once: true, margin: "-20px" }}
+              viewport={{ once: true, amount: 0.05 }}
               transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
               style={{ originX: 0.5 }}
               className="w-full h-[2.5px] bg-white rounded-full mt-6 relative z-10"
