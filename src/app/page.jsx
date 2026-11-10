@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import TopNav from "../components/TopNav";
 import HeroSection from "../components/HeroSection";
 import ProjectsSection from "../components/ProjectsSection";
@@ -14,6 +15,12 @@ export default function Home() {
   const [isResumeOpen, setIsResumeOpen] = useState(false);
   const [isPlayOpen, setIsPlayOpen] = useState(false);
   const [selectedProjectId, setSelectedProjectId] = useState(null);
+  const [isAreasCollapsed, setIsAreasCollapsed] = useState(false);
+
+  const toggleAreas = () => {
+    playSound && playSound(isAreasCollapsed ? "pop" : "slide");
+    setIsAreasCollapsed((prev) => !prev);
+  };
 
   // Sync theme from localStorage on initial load
   useEffect(() => {
@@ -126,28 +133,41 @@ export default function Home() {
           playSound={playSound}
         />
 
-        {/* Section Divider Line dividing Hero and Projects sections - matches Areas of Interest divider */}
-        <div className="w-full px-4 sm:px-6 md:px-12 my-4 sm:my-6">
+        {/* Animated Horizontal Divider Line: Grows from Center to Left & Right on Scroll (once, no fade out) */}
+        <div className="w-full px-4 sm:px-6 md:px-12 my-6 sm:my-8 relative z-20">
           <div className="max-w-6xl w-full mx-auto">
-            <div className="w-full h-[2.5px] bg-black dark:bg-white/40 rounded-full"></div>
+            <motion.div 
+              initial={{ scaleX: 0 }}
+              whileInView={{ scaleX: 1 }}
+              viewport={{ once: true, margin: "-30px" }}
+              transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+              style={{ originX: 0.5 }}
+              className="w-full h-[3px] bg-black dark:bg-white/80 rounded-full"
+            />
           </div>
         </div>
 
-        {/* Projects 2x2 Showcase with Black Font and No 'New!' */}
+        {/* Projects 2x2 Showcase */}
         <ProjectsSection 
           theme={theme}
           onSelectProject={(id) => setSelectedProjectId(id)}
           playSound={playSound}
         />
 
-        {/* Areas of Interest / 'Me' Green Section with Left-Facing Paper Plane */}
+        {/* Areas of Interest / 'Me' Green Section with Interactive Collapse Toggle */}
         <AreasOfInterest
+          isCollapsed={isAreasCollapsed}
+          onToggle={toggleAreas}
           playSound={playSound}
         />
       </main>
 
-      {/* Plain Solid Black Footer */}
-      <Footer playSound={playSound} />
+      {/* Plain Solid Black Footer with Inverted Tab attached to footer top when collapsed */}
+      <Footer 
+        playSound={playSound} 
+        isAreasCollapsed={isAreasCollapsed}
+        onToggleAreas={toggleAreas}
+      />
 
       {/* Modals */}
       <ResumeModal
