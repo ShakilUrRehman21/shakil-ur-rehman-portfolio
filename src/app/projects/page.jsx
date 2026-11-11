@@ -1,6 +1,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Search, X, ArrowUpRight } from "lucide-react";
 import AppShell, { useApp } from "../../components/AppShell";
 import ProjectVisual from "../../components/ProjectVisual";
@@ -23,11 +23,9 @@ function Card({ project, index }) {
 
   return (
     <motion.li
-      layout
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.15 } }}
-      transition={{ duration: 0.45, delay: index * 0.04, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.4, delay: Math.min(index, 8) * 0.04, ease: [0.22, 1, 0.36, 1] }}
     >
       <motion.article
         whileHover={{ y: -4 }}
@@ -141,13 +139,13 @@ function Gallery() {
           </label>
         </div>
 
-        <motion.ul layout className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
-          <AnimatePresence mode="popLayout">
-            {list.map((p, i) => (
-              <Card key={p.id} project={p} index={i} />
-            ))}
-          </AnimatePresence>
-        </motion.ul>
+        {/* Cards that leave are removed at once (no exit animation), so a hidden
+            card can never hold its space; switching tabs replays a short stagger. */}
+        <ul key={filter} className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {list.map((p, i) => (
+            <Card key={p.id} project={p} index={i} />
+          ))}
+        </ul>
 
         {list.length === 0 && (
           <div className="mt-8 rounded-2xl border border-dashed border-line/20 p-8 text-center">
