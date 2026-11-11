@@ -1,341 +1,158 @@
 "use client";
-import React, { useState } from "react";
-import Image from "next/image";
+import React, { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, animate, useInView } from "framer-motion";
+import { ArrowUpRight, BookOpen } from "lucide-react";
+import { useApp } from "./AppShell";
+import { GithubIcon } from "./Icons";
+import ProjectVisual from "./ProjectVisual";
+import { projects, DOMAINS } from "../data/projects";
 
-export default function ProjectsSection({ theme, onSelectProject, playSound }) {
-  const [activeTab, setActiveTab] = useState("projects"); // "projects" | "ai"
+const FEATURED = ["repolens", "taskflow", "crashledger"];
 
-  // 1. Core Full-Stack & Systems Engineering Projects
-  const coreProjects = [
-    {
-      id: "syncworld",
-      title: "SyncWorld",
-      subtitle: "Distributed Real-Time Workspace",
-      badge: "Real-Time Distributed System",
-      badgeStyle: "bg-blue-500/10 text-blue-700 dark:text-blue-300 border-blue-500/30",
-      image: "/syncworld.png",
-      liveUrl: "https://sync-world.onrender.com/",
-      tags: ["WebSockets", "OpenJDK 21", "Vector Canvas", "<60ms Sync"],
-      description: "Low-latency distributed workspace with multi-user vector canvas synchronization, remote cursor presence mesh, and an in-browser sandbox compiler."
-    },
-    {
-      id: "crashledger",
-      title: "CrashLedger",
-      subtitle: "SRE Incident Lifecycle Platform",
-      badge: "Failure Intelligence Engine",
-      badgeStyle: "bg-orange-500/10 text-orange-700 dark:text-orange-300 border-orange-500/30",
-      image: "/crashledger.png",
-      liveUrl: "https://crash-ledger.vercel.app/",
-      tags: ["Next.js 16", "PostgreSQL", "Drizzle ORM", "MTTR Engine"],
-      description: "Operational failure analytics platform enforcing automated post-mortems, tracking recurring component risks, and calculating production MTTR."
-    },
-    {
-      id: "milkmart",
-      title: "MilkMart Platform",
-      subtitle: "Cold-Chain Dairy Commerce System",
-      badge: "Cold-Chain Commerce",
-      badgeStyle: "bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border-emerald-500/30",
-      image: "/milkmart.png",
-      liveUrl: "https://milkmart-platform.onrender.com/",
-      tags: ["Django 5", "Python 3", "Razorpay Gateway", "Docker"],
-      description: "Perishable dairy fulfillment engine featuring early-morning slot routing, dual payment resilience (Razorpay + instant fallback), and dynamic AJAX carts."
-    },
-    {
-      id: "framershowcase",
-      title: "Framer Components Lab",
-      subtitle: "WebGL Shaders & Motion Systems",
-      badge: "10 Live Smart Components",
-      badgeStyle: "bg-cyan-500/10 text-cyan-700 dark:text-cyan-300 border-cyan-500/30",
-      image: "/framer.png",
-      liveUrl: "https://framer-showcase-two.vercel.app/",
-      tags: ["Three.js", "GLSL Shaders", "Framer Motion", "60 FPS"],
-      description: "Curated suite of 10 production-grade WebGL canvas shaders, noise displacement typography, and spring physics micro-interaction components."
-    }
-  ];
+// Counts from the "before" number to the "after" number when scrolled into view
+function Metric({ metric, color }) {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, amount: 0.8 });
+  const from = parseFloat(metric.from);
+  const to = parseFloat(metric.to);
+  const suffix = metric.to.replace(/^[\d.]+/, "");
+  const decimals = String(to).includes(".") ? 1 : 0;
+  const [val, setVal] = useState(from);
 
-  // 2. AI-Native Products
-  const aiProjects = [
-    {
-      id: "repolens",
-      title: "RepoLens",
-      subtitle: "AI Code Diagnostics & AST Analysis",
-      badge: "Groq LPU & AST Diagnostics",
-      badgeStyle: "bg-lime-500/15 text-lime-800 dark:text-lime-300 border-lime-500/30",
-      image: "/repolens.png",
-      liveUrl: "https://repo-lens-sooty.vercel.app/",
-      tags: ["Next.js 14", "Groq LPU", "AST Engine", "GitHub Webhooks"],
-      description: "High-throughput code intelligence scanning GitHub repositories to diagnose architecture flaws, security vulnerabilities, and technical debt."
-    },
-    {
-      id: "digitalmemoryvault",
-      title: "Digital Memory Vault",
-      subtitle: "Behavioral Decision Intelligence",
-      badge: "Decision Intelligence & Scoring",
-      badgeStyle: "bg-purple-500/10 text-purple-700 dark:text-purple-300 border-purple-500/30",
-      image: "/digital-memory-vault.png",
-      liveUrl: "https://digital-memory-vault-weld.vercel.app/",
-      tags: ["Next.js 14", "TypeScript", "Brier Calibration", "PostgreSQL"],
-      description: "Cognitive analytics engine logging pre-commitment rationales at T=0, calculating mathematical Brier calibration scores, and mitigating hindsight bias."
-    },
-    {
-      id: "coursegen",
-      title: "CourseGen AI",
-      subtitle: "Autonomous Curriculum Generator",
-      badge: "Autonomous AI Platform",
-      badgeStyle: "bg-amber-500/15 text-amber-800 dark:text-amber-300 border-amber-500/30",
-      image: "/coursegen-ai.png",
-      liveUrl: "https://course-gen-ai-ten.vercel.app/",
-      tags: ["Next.js 14", "Gemini API", "PostgreSQL", "Drizzle ORM"],
-      description: "Autonomous education engine generating multi-chapter curricula with integrated YouTube educational search, Neon PostgreSQL, and Clerk auth."
-    },
-    {
-      id: "prepmaster",
-      title: "PrepMaster Studio",
-      subtitle: "Technical & Behavioral Mock Studio",
-      badge: "AI Mock Interview Studio",
-      badgeStyle: "bg-sky-500/15 text-sky-800 dark:text-sky-300 border-sky-500/30",
-      image: "/prepmaster.png",
-      liveUrl: "https://prep-master-studio.vercel.app/",
-      tags: ["Next.js 15", "Web Speech", "STAR Rubric", "Gemini 1.5"],
-      description: "Voice-driven mock interview studio with continuous speech-to-text, live waveform telemetry, and structured STAR rubric diagnostic scorecards."
-    }
-  ];
-
-  const currentList = activeTab === "projects" ? coreProjects : aiProjects;
+  useEffect(() => {
+    if (!inView) return;
+    const c = animate(from, to, { duration: 1.4, ease: [0.22, 1, 0.36, 1], onUpdate: setVal });
+    return () => c.stop();
+  }, [inView, from, to]);
 
   return (
-    <section id="projects" className="w-full pt-8 sm:pt-12 pb-16 sm:pb-24 px-4 sm:px-6 md:px-12 flex justify-center relative select-none">
-      <div className="max-w-6xl w-full">
+    <div ref={ref} className="mt-4 flex items-center gap-3 rounded-xl px-3.5 py-2.5" style={{ background: `rgb(var(--${color}) / 0.09)` }}>
+      <p className="font-display text-[1.45rem] leading-none tabular-nums whitespace-nowrap" style={{ fontVariationSettings: '"wdth" 100, "wght" 800', color: `rgb(var(--${color}))` }}>
+        {val.toFixed(decimals)}
+        {suffix} <span className="text-[13px] font-sans font-semibold">{metric.unit}</span>
+      </p>
+      <p className="text-[12.5px] leading-snug text-muted">
+        from {metric.from}: {metric.note}
+      </p>
+    </div>
+  );
+}
 
-        {/* Section Header with Strong, Authoritative Typography & Eyebrow */}
-        <div className="flex flex-col items-center text-center mb-10 sm:mb-14">
-          <motion.span 
-            initial={{ opacity: 0, y: 8 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4 }}
-            className="text-xs font-mono font-bold uppercase tracking-widest text-emerald-600 dark:text-emerald-400 mb-2"
-          >
-            Crafted & Shipped
-          </motion.span>
+function FeaturedCard({ project, index }) {
+  const { openCase, playSound } = useApp();
+  const color = `rgb(var(--${project.domain}))`;
+  const flip = index % 2 === 1;
 
-          <motion.h2 
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.05, ease: [0.22, 1, 0.36, 1] }}
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-black dark:text-white"
-          >
-            Featured Projects
-          </motion.h2>
+  const stop = (e) => {
+    e.stopPropagation();
+    playSound("whoosh");
+  };
 
-          <motion.p 
-            initial={{ opacity: 0, y: 10 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-            className="text-sm sm:text-base text-neutral-600 dark:text-neutral-400 max-w-xl mx-auto mt-3 leading-relaxed"
-          >
-            Production applications engineered with high-concurrency distributed backends, AI diagnostics, and fluid motion interfaces.
-          </motion.p>
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.25 }}
+      transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      whileHover={{ y: -4 }}
+      onClick={() => {
+        playSound("pop");
+        openCase(project.id);
+      }}
+      className="group cursor-pointer rounded-2xl bg-surface border border-line/10 shadow-[0_16px_40px_-28px_rgb(var(--ink)/0.45)] hover:shadow-[0_24px_50px_-26px_rgb(var(--ink)/0.5)] transition-shadow overflow-hidden grid grid-cols-1 md:grid-cols-12"
+    >
+      <div className={`md:col-span-5 m-2 rounded-xl p-4 sm:p-5 flex items-center ${flip ? "md:order-2" : ""}`} style={{ background: color }}>
+        <ProjectVisual project={project} />
+      </div>
+
+      <div className={`md:col-span-7 p-5 sm:p-6 flex flex-col ${flip ? "md:order-1" : ""}`}>
+        <p className="flex items-center gap-2 text-[12.5px] text-muted">
+          <span className="w-2 h-2 rounded-full" style={{ background: color }} />
+          {DOMAINS[project.domain].label}
+        </p>
+        <h3
+          className="mt-2 font-display text-[1.65rem] leading-none tracking-[-0.025em] transition-[font-variation-settings] duration-500 [font-variation-settings:'wdth'_100,'wght'_780] group-hover:[font-variation-settings:'wdth'_118,'wght'_840]"
+        >
+          {project.title}
+        </h3>
+        <p className="mt-1.5 text-[14px] font-medium" style={{ color }}>
+          {project.subtitle}
+        </p>
+
+        {project.metric && <Metric metric={project.metric} color={project.domain} />}
+
+        <ul className="mt-4 space-y-1.5 text-[14px] leading-relaxed text-ink/85">
+          {project.bullets.map((b) => (
+            <li key={b} className="flex gap-2.5">
+              <span className="mt-[9px] w-1 h-1 rounded-full shrink-0" style={{ background: color }} />
+              {b}
+            </li>
+          ))}
+        </ul>
+
+        <div className="mt-auto pt-5 flex flex-wrap items-center gap-1.5">
+          {project.tags.slice(0, 5).map((t) => (
+            <span key={t} className="px-2 py-0.5 rounded-md text-[11.5px] bg-sunken text-ink/75">
+              {t}
+            </span>
+          ))}
+          <span className="ml-auto flex items-center gap-1.5 pt-2 sm:pt-0">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                playSound("pop");
+                openCase(project.id);
+              }}
+              className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full bg-ink text-bg text-[12.5px] font-semibold"
+            >
+              <BookOpen className="w-3.5 h-3.5" />
+              Case study
+            </button>
+            <a href={project.liveUrl} target="_blank" rel="noopener noreferrer" onClick={stop} className="group/l inline-flex items-center gap-1 h-8 px-3 rounded-full border border-line/20 text-[12.5px] font-semibold hover:border-ink transition-colors">
+              Live
+              <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover/l:translate-x-0.5 group-hover/l:-translate-y-0.5" />
+            </a>
+            <a href={project.githubUrl} target="_blank" rel="noopener noreferrer" onClick={stop} aria-label={`${project.title} source on GitHub`} className="w-8 h-8 grid place-items-center rounded-full border border-line/20 hover:border-ink transition-colors">
+              <GithubIcon className="w-3.5 h-3.5" />
+            </a>
+          </span>
         </div>
+      </div>
+    </motion.article>
+  );
+}
 
-        {/* 
-          Centered Signature Tabs matching Reference Image 2:
-          - 'Projects' (active with warm golden underline #E5A823)
-          - 'Designing with AI'
-        */}
-        <div className="flex items-center justify-center gap-8 sm:gap-14 mb-10 sm:mb-14">
-          {/* 1. Projects Tab */}
-          <button
-            type="button"
-            onClick={() => {
-              playSound && playSound("pop");
-              setActiveTab("projects");
-            }}
-            className={`relative font-bold text-lg sm:text-xl tracking-tight transition-colors pb-1.5 cursor-pointer whitespace-nowrap ${
-              activeTab === "projects" 
-                ? "text-black dark:text-white" 
-                : "text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white"
-            }`}
-          >
-            Projects
-            {activeTab === "projects" && (
-              <motion.div
-                layoutId="projectTabUnderline"
-                className="absolute -bottom-2 left-0 right-0 h-[3.5px] bg-[#E5A823] rounded-full"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
-          </button>
+export default function ProjectsSection() {
+  const { playSound } = useApp();
+  const list = FEATURED.map((id) => projects.find((p) => p.id === id));
 
-          {/* 2. Designing with AI Tab */}
-          <button
-            type="button"
-            onClick={() => {
-              playSound && playSound("pop");
-              setActiveTab("ai");
-            }}
-            className={`relative font-bold text-lg sm:text-xl tracking-tight transition-colors pb-1.5 cursor-pointer whitespace-nowrap ${
-              activeTab === "ai" 
-                ? "text-black dark:text-white" 
-                : "text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white"
-            }`}
-          >
-            Designing with AI
-            {activeTab === "ai" && (
-              <motion.div
-                layoutId="projectTabUnderline"
-                className="absolute -bottom-2 left-0 right-0 h-[3.5px] bg-[#E5A823] rounded-full"
-                transition={{ type: "spring", stiffness: 380, damping: 30 }}
-              />
-            )}
-          </button>
-        </div>
-
-        {/* 
-          Unified, Elevated Project Cards:
-          - Tactile STACKABLE Card Deck on scroll (sticky with progressive top offsets and z-indexes)
-          - Mobile: Compact 100% visible card layout with fluid touch interactions
-          - Desktop: Elegant split showcase with dynamic screenshot perspective
-        */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -16 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-5xl mx-auto flex flex-col relative"
-          >
-            {currentList.map((project, idx) => {
-              return (
-                <motion.div
-                  key={project.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, amount: 0.1 }}
-                  transition={{ duration: 0.45, delay: idx * 0.05, ease: [0.22, 1, 0.36, 1] }}
-                  onClick={() => {
-                    playSound && playSound("pop");
-                    onSelectProject && onSelectProject(project.id);
-                  }}
-                  style={{
-                    top: `calc(74px + ${idx * 14}px)`,
-                    zIndex: 10 + idx,
-                  }}
-                  className="sticky group rounded-[24px] sm:rounded-3xl p-4 sm:p-6 md:p-8 flex flex-col justify-between shadow-[0_10px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.6)] hover:shadow-2xl transition-all duration-300 cursor-pointer bg-white dark:bg-[#1C1C20] border-2 border-black dark:border-white/20 mb-8 sm:mb-12 md:mb-16 last:mb-0"
-                >
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-center">
-                    
-                    {/* Left/Content Column (7 cols on desktop) */}
-                    <div className="md:col-span-7 flex flex-col justify-between">
-                      <div>
-                        {/* Top Bar: Category Pill & Live Link */}
-                        <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2 flex-wrap">
-                          <span className={`px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-semibold border ${project.badgeStyle}`}>
-                            {project.badge}
-                          </span>
-
-                          <motion.a
-                            href={project.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              playSound && playSound("whoosh");
-                            }}
-                            className="px-2.5 sm:px-3 py-0.5 sm:py-1 rounded-full text-[11px] sm:text-xs font-semibold border border-black/20 dark:border-white/20 hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all flex items-center gap-1 text-black dark:text-white font-mono"
-                          >
-                            <span>Live App</span>
-                            <span>↗</span>
-                          </motion.a>
-                        </div>
-
-                        {/* Mobile-Only Screenshot Viewport (Clean, compact, non-overflowing) */}
-                        <div className="block md:hidden mb-3.5 rounded-xl overflow-hidden border border-black/10 dark:border-white/10 shadow-xs bg-neutral-100 dark:bg-neutral-900 relative">
-                          <div className="relative w-full aspect-[16/9] overflow-hidden">
-                            <Image
-                              src={project.image}
-                              alt={`${project.title} live interface`}
-                              fill
-                              sizes="(max-width: 768px) 100vw, 450px"
-                              className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Strong, Authoritative Project Title & Architecture Subtitle */}
-                        <h3 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight mb-1 text-black dark:text-white group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                          {project.title}
-                        </h3>
-                        <p className="text-xs sm:text-sm font-mono font-semibold text-emerald-600 dark:text-emerald-400 mb-2 sm:mb-2.5">
-                          {project.subtitle}
-                        </p>
-                        <p className="text-xs sm:text-sm leading-relaxed text-neutral-600 dark:text-neutral-300 mb-4 line-clamp-2 sm:line-clamp-3 md:line-clamp-none">
-                          {project.description}
-                        </p>
-                      </div>
-
-                      {/* Card Footer: Tech Tags & Case Study Trigger */}
-                      <div className="pt-3 border-t border-black/10 dark:border-white/10 flex items-center justify-between text-xs font-mono gap-2 flex-wrap">
-                        <div className="flex flex-wrap gap-1 sm:gap-1.5">
-                          {project.tags.slice(0, 4).map((tag) => (
-                            <span
-                              key={tag}
-                              className="px-2 py-0.5 rounded-md text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300 border border-neutral-300 dark:border-neutral-700 font-medium"
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-
-                        <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1 group-hover:underline text-xs sm:text-sm">
-                          <span>Case Study</span>
-                          <span className="transition-transform group-hover:translate-x-1 font-bold">→</span>
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Desktop Screenshot Viewport (5 cols on desktop, hidden on mobile) */}
-                    <div className="hidden md:block md:col-span-5 w-full">
-                      <div className="rounded-2xl overflow-hidden border border-black/10 dark:border-white/10 shadow-xs bg-neutral-100 dark:bg-neutral-900 relative">
-                        <div className="relative w-full aspect-[16/10] overflow-hidden">
-                          <Image
-                            src={project.image}
-                            alt={`${project.title} live interface`}
-                            fill
-                            sizes="500px"
-                            className="object-cover object-top transition-transform duration-700 ease-out group-hover:scale-105"
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                  </div>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* SHOW MORE WORK BUTTON */}
-        <div className="w-full flex flex-col items-center justify-center mt-12 sm:mt-16">
+  return (
+    <section id="work" className="relative px-4 sm:px-6 lg:px-8 py-20 sm:py-24">
+      <div className="mx-auto max-w-[1120px]">
+        <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
+          <div>
+            <h2 className="h-section">Featured projects</h2>
+            <p className="mt-2.5 text-[15px] text-muted max-w-[52ch]">
+              Built end to end and load-tested. Open any card for the full case study.
+            </p>
+          </div>
           <Link
             href="/projects"
-            onClick={() => playSound && playSound("whoosh")}
-            className="group px-7 sm:px-9 py-3.5 sm:py-4 rounded-2xl bg-white dark:bg-neutral-900 text-black dark:text-white border-2 border-black dark:border-white/40 shadow-[0_6px_20px_rgba(0,0,0,0.08)] hover:shadow-[0_14px_32px_rgba(0,0,0,0.16)] transition-all hover:-translate-y-1 active:scale-[0.98] cursor-pointer inline-flex items-center gap-3 font-semibold text-base sm:text-lg"
+            onClick={() => playSound("whoosh")}
+            className="group inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full border border-line/15 bg-surface text-[13px] font-semibold hover:border-ink transition-colors"
           >
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-            <span className="font-extrabold tracking-tight text-lg sm:text-xl">Show More Engineered Works</span>
-            <span className="transition-transform group-hover:translate-x-1.5 font-bold">→</span>
+            All {projects.length} projects
+            <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:rotate-45" />
           </Link>
         </div>
 
+        <div className="space-y-5">
+          {list.map((p, i) => (
+            <FeaturedCard key={p.id} project={p} index={i} />
+          ))}
+        </div>
       </div>
     </section>
   );

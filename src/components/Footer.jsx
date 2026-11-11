@@ -1,160 +1,202 @@
 "use client";
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUp, Copy, Check, Send } from "lucide-react";
+import { useApp } from "./AppShell";
+import Magnetic from "./Magnetic";
+import { contact } from "../data/projects";
 
-export default function Footer({ playSound, isAreasCollapsed, onToggleAreas }) {
-  const [email, setEmail] = useState("");
+const LINKS = [
+  { label: "LinkedIn", href: contact.linkedin },
+  { label: "GitHub", href: contact.github },
+  { label: "LeetCode", href: contact.leetcode },
+  { label: "Framer", href: contact.framer },
+];
+
+function Field({ label, as = "input", ...props }) {
+  const Tag = as;
+  return (
+    <label className="group block">
+      <span className="block text-[13px] text-[#A3A9C9] mb-1.5">{label}</span>
+      <Tag
+        {...props}
+        className="w-full bg-white/[0.04] border border-white/10 rounded-xl px-3.5 py-2.5 text-[14px] text-[#ECEEF8] placeholder-[#A3A9C9]/60 outline-none transition-[border-color,background-color,box-shadow] focus:border-[rgb(var(--marigold))] focus:bg-white/[0.06] focus:shadow-[0_0_0_3px_rgb(var(--marigold)/0.15)] resize-none"
+      />
+    </label>
+  );
+}
+
+function Wordmark() {
+  const letters = "Shakil".split("");
+  return (
+    <div aria-hidden="true" className="select-none flex justify-center overflow-hidden pt-6 -mb-[0.18em]">
+      {letters.map((ch, i) => (
+        <motion.span
+          key={i}
+          initial={{ y: "60%", opacity: 0 }}
+          whileInView={{ y: "0%", opacity: 1 }}
+          viewport={{ once: true, amount: 0.3 }}
+          transition={{ duration: 0.9, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+          whileHover={{ y: "-12%", transition: { type: "spring", stiffness: 400, damping: 12 } }}
+          className="font-display inline-block leading-[0.8] text-[clamp(5rem,19vw,22rem)] tracking-[-0.04em] text-transparent hover:text-[rgb(var(--marigold))] transition-colors duration-300"
+          style={{ fontVariationSettings: '"wdth" 135, "wght" 900', WebkitTextStroke: "1.5px rgb(255 255 255 / 0.18)" }}
+        >
+          {ch}
+        </motion.span>
+      ))}
+    </div>
+  );
+}
+
+export default function Footer() {
+  const { playSound, scrollTo } = useApp();
+  const [from, setFrom] = useState("");
   const [message, setMessage] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const handleSubmit = (e) => {
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(contact.email);
+      setCopied(true);
+      playSound("ok");
+      setTimeout(() => setCopied(false), 1800);
+    } catch (e) {}
+  };
+
+  const submit = (e) => {
     e.preventDefault();
-    if (!email || !message) return;
-    playSound && playSound("pop");
-    setSubmitted(true);
-    setTimeout(() => {
-      setEmail("");
-      setMessage("");
-      setSubmitted(false);
-    }, 4000);
+    if (!from || !message) return;
+    playSound("whoosh");
+    const subject = encodeURIComponent(`Hello from ${from}`);
+    const body = encodeURIComponent(`${message}\n\nReply to: ${from}`);
+    window.location.href = `mailto:${contact.email}?subject=${subject}&body=${body}`;
+    setSent(true);
+    setTimeout(() => setSent(false), 4000);
   };
 
   return (
-    <footer className="relative z-30 w-full bg-[#000000] text-white py-14 sm:py-20 px-4 sm:px-6 md:px-16 selection:bg-neutral-800 selection:text-white border-t border-neutral-900 select-none">
-      
-      {/* Inverted Yellow Tab Attached to Footer Top (When Areas of Interest is Collapsed) */}
-      {isAreasCollapsed && onToggleAreas && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 translate-y-[2px] z-40">
-          <button
-            type="button"
-            onClick={onToggleAreas}
-            className="group relative flex items-center justify-center gap-2 px-6 sm:px-8 py-1.5 sm:py-2 rounded-t-2xl bg-[#E5A823] hover:bg-[#F5B833] text-black font-mono text-xs sm:text-sm font-bold border-2 border-black border-b-0 shadow-md transition-all cursor-pointer select-none active:scale-95"
-            title="Click to open Areas of Interest"
-            aria-label="Open Areas of Interest"
+    <footer id="contact" className="on-night relative bg-night text-[#ECEEF8] px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 overflow-hidden">
+      <div className="mx-auto max-w-[1120px] grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14">
+        <div className="lg:col-span-6">
+          <motion.h2
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="font-display text-[clamp(2.2rem,4.4vw,3.6rem)] leading-[0.95] tracking-[-0.035em]"
+            style={{ fontVariationSettings: '"wdth" 100, "wght" 820' }}
           >
-            <span className="w-1.5 h-1.5 rounded-full bg-black/70 group-hover:scale-125 transition-transform" />
-            <span>Areas of Interest // Open</span>
-            <span className="inline-block text-[10px]">▲</span>
-          </button>
+            Feel free to
+            <br />
+            reach out
+          </motion.h2>
+          <p className="mt-4 text-[15px] text-[#A3A9C9] max-w-[40ch]">
+            I'm currently open to exploring new engineering opportunities.
+          </p>
+
+          <div className="mt-8">
+            <p className="text-[13px] text-[#A3A9C9] mb-1.5">Email me directly</p>
+            <div className="flex flex-wrap items-center gap-3">
+              <a
+                href={`mailto:${contact.email}`}
+                onClick={() => playSound("pop")}
+                className="group relative text-[clamp(1.1rem,2vw,1.4rem)] font-semibold break-all"
+              >
+                {contact.email}
+                <span className="absolute left-0 -bottom-1 h-[2px] w-full bg-[rgb(var(--marigold))] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out" />
+              </a>
+              <button
+                type="button"
+                onClick={copyEmail}
+                aria-label="Copy email address"
+                className="relative inline-flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-white/[0.07] border border-white/10 text-[12.5px] hover:bg-white/[0.12] transition-colors"
+              >
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={copied ? "y" : "n"}
+                    initial={{ y: 8, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -8, opacity: 0 }}
+                    transition={{ duration: 0.18 }}
+                    className="inline-flex items-center gap-1.5"
+                  >
+                    {copied ? <Check className="w-3.5 h-3.5 text-[rgb(var(--mint))]" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copied ? "Copied" : "Copy"}
+                  </motion.span>
+                </AnimatePresence>
+              </button>
+            </div>
+            <p className="mt-2 text-[13px] text-[#A3A9C9]">{contact.phone}</p>
+          </div>
+
+          <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-[14px] font-semibold">
+            {LINKS.map((l) => (
+              <li key={l.label}>
+                <a
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => playSound("pop")}
+                  className="group relative inline-flex overflow-hidden"
+                >
+                  <span className="block transition-transform duration-500 ease-out group-hover:-translate-y-full">{l.label} ↗</span>
+                  <span className="absolute inset-0 translate-y-full transition-transform duration-500 ease-out group-hover:translate-y-0 text-[rgb(var(--marigold))]">
+                    {l.label} ↗
+                  </span>
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
-      <div className="max-w-6xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16">
-        
-        {/* Left Column: Bold Typography & Social Links */}
-        <motion.div 
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="lg:col-span-6 flex flex-col justify-between"
-        >
-          <div>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white mb-4 sm:mb-6">
-              Feel free to reach out!
-            </h2>
 
-            <p className="text-base sm:text-lg md:text-xl text-neutral-200 mb-4 sm:mb-6 font-medium">
-              I'm currently open to exploring new engineering opportunities.
-            </p>
-
-            <p className="text-xs sm:text-sm text-neutral-400 leading-relaxed max-w-md">
-              <strong className="text-white font-semibold">P.S.</strong> You can drop a message here or connect directly via LinkedIn or GitHub!
-            </p>
-          </div>
-
-          {/* Social Links on Bottom Left */}
-          <div className="flex items-center gap-6 sm:gap-8 mt-8 sm:mt-12 pt-4 text-sm sm:text-base font-semibold text-white">
-            <motion.a 
-              href="mailto:rehmanshakil21@gmail.com" 
-              whileHover={{ y: -2 }}
-              className="hover:underline hover:text-emerald-400 transition-colors"
-              onClick={() => playSound && playSound("pop")}
-            >
-              Email ↗
-            </motion.a>
-            <motion.a 
-              href="https://linkedin.com/in/shakilurrehman21" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              whileHover={{ y: -2 }}
-              className="hover:underline hover:text-emerald-400 transition-colors"
-              onClick={() => playSound && playSound("pop")}
-            >
-              LinkedIn ↗
-            </motion.a>
-            <motion.a 
-              href="https://github.com/shakilurrehman21" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              whileHover={{ y: -2 }}
-              className="hover:underline hover:text-emerald-400 transition-colors"
-              onClick={() => playSound && playSound("pop")}
-            >
-              GitHub ↗
-            </motion.a>
-          </div>
-        </motion.div>
-
-        {/* Right Column: Contact Form */}
-        <motion.div 
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="lg:col-span-6 flex flex-col justify-between"
-        >
-          <form onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Your Email */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
-                Your Email
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="recruiter@company.com"
-                className="w-full bg-[#18181B] border border-neutral-800 rounded-2xl px-4 py-3 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
-              />
-            </div>
-
-            {/* Message */}
-            <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1.5">
-                Message
-              </label>
-              <textarea
-                required
-                rows={4}
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder="Type your message..."
-                className="w-full bg-[#18181B] border border-neutral-800 rounded-2xl px-4 py-3 text-sm text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500 resize-none transition-colors"
-              ></textarea>
-            </div>
-
-            {/* Submit Button with Pop Animation */}
+        <div className="lg:col-span-6">
+          <form onSubmit={submit} className="rounded-2xl bg-white/[0.03] border border-white/10 p-5 space-y-3">
+            <p className="text-[15px] font-semibold">Or leave a note</p>
+            <Field label="Your email" type="email" required value={from} onChange={(e) => setFrom(e.target.value)} placeholder="recruiter@company.com" />
+            <Field label="Message" as="textarea" rows={4} required value={message} onChange={(e) => setMessage(e.target.value)} placeholder="What are you working on?" />
             <motion.button
               type="submit"
-              whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              onClick={() => playSound && playSound("pop")}
-              className="w-full py-3.5 rounded-2xl bg-[#27272A] hover:bg-white hover:text-black text-white font-bold text-sm transition-all duration-200 shadow-md flex items-center justify-center gap-2 cursor-pointer"
+              className="group w-full h-11 rounded-xl bg-[rgb(var(--marigold))] text-[#151935] font-semibold text-[14px] inline-flex items-center justify-center gap-2 overflow-hidden relative"
             >
-              {submitted ? "Message Sent! ✨" : "Send Message →"}
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.span
+                  key={sent ? "sent" : "idle"}
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: -20, opacity: 0 }}
+                  className="inline-flex items-center gap-2"
+                >
+                  {sent ? "Opening your mail app" : "Send message"}
+                  {!sent && <Send className="w-4 h-4 transition-transform group-hover:translate-x-1 group-hover:-translate-y-0.5" />}
+                </motion.span>
+              </AnimatePresence>
             </motion.button>
+            <p className="text-[12px] text-[#A3A9C9]">This opens your email app with the message filled in.</p>
           </form>
+        </div>
+      </div>
 
-          {/* Copyright on Bottom Right */}
-          <div className="flex justify-end mt-10 pt-4">
-            <span className="text-xs sm:text-sm text-neutral-400 font-mono">
-              © Shakil Ur Rehman • Built with Next.js & Framer Motion
-            </span>
-          </div>
-        </motion.div>
+      <div className="mx-auto max-w-[1120px] mt-14 flex flex-wrap items-center justify-between gap-3 text-[12.5px] text-[#A3A9C9]">
+        <span>© {new Date().getFullYear()} Shakil Ur Rehman. Built with Next.js and Framer Motion.</span>
+        <Magnetic>
+          <button
+            type="button"
+            onClick={() => {
+              playSound("whoosh");
+              scrollTo(document.body);
+            }}
+            className="inline-flex items-center gap-1.5 h-8 px-3 rounded-full border border-white/15 hover:bg-white hover:text-[#151935] transition-colors"
+          >
+            <ArrowUp className="w-3.5 h-3.5" />
+            Back to top
+          </button>
+        </Magnetic>
+      </div>
 
+      <div className="mt-8">
+        <Wordmark />
       </div>
     </footer>
   );

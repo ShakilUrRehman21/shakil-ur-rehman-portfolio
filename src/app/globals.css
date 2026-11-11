@@ -2,153 +2,200 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ------------------------------------------------------------------ */
+/* Design tokens                                                       */
+/* Colors are RGB triplets so Tailwind can apply alpha: bg-cobalt/20   */
+/* ------------------------------------------------------------------ */
 :root {
-  --bg-color: #ECE7DF;
-  --bg-texture: radial-gradient(#d3cbbe 0.75px, transparent 0.75px);
-  --text-primary: #000000;
-  --text-muted: #374151;
-  --text-light: #6B7280;
-  --border-color: #000000;
-  --card-bg: #FFFFFF;
-  --lamp-glow: rgba(255, 209, 59, 0);
-  --lamp-shade-color: #FFFFFF;
-  --monitor-screen: #FFFFFF;
-  --monitor-border: #000000;
+  --bg: 238 240 246;        /* mist */
+  --sunken: 228 231 240;
+  --surface: 255 255 255;
+  --ink: 21 25 53;          /* deep ink */
+  --muted: 82 88 120;
+  --line: 21 25 53;         /* used with low alpha */
+  --night: 13 16 34;        /* always-dark sections */
+
+  /* Domain colors: one meaning each, used everywhere */
+  --cobalt: 59 91 253;      /* backend & systems */
+  --marigold: 245 165 36;   /* motion & design */
+  --orchid: 140 82 240;     /* generative AI */
+  --mint: 10 160 122;       /* real-time */
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: light;
 }
 
-[data-theme="dark"] {
-  --bg-color: #141616;
-  --bg-texture: radial-gradient(#262828 0.75px, transparent 0.75px);
-  --text-primary: #FFFFFF;
-  --text-muted: #F3F4F6;
-  --text-light: #E5E7EB;
-  --border-color: #FFFFFF;
-  --card-bg: #222324;
-  --lamp-glow: rgba(255, 214, 70, 0.5);
-  --lamp-shade-color: #FCD34D;
-  --monitor-screen: #1C1C1E;
-  --monitor-border: #27272A;
+:root.dark {
+  --bg: 13 16 34;
+  --sunken: 19 23 52;
+  --surface: 24 28 62;
+  --ink: 236 238 248;
+  --muted: 163 169 201;
+  --line: 236 238 248;
+  --night: 8 10 24;
+
+  --cobalt: 120 142 255;
+  --marigold: 255 190 69;
+  --orchid: 182 141 255;
+  --mint: 47 217 169;
+  color-scheme: dark;
+}
+
+/* Always-dark sections use the brighter domain colors in both themes */
+.on-night {
+  --cobalt: 120 142 255;
+  --marigold: 255 190 69;
+  --orchid: 182 141 255;
+  --mint: 47 217 169;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
 }
 
 body {
-  background-color: var(--bg-color);
-  color: var(--text-primary);
-  font-family: var(--font-jakarta), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  transition: background-color 0.4s ease, color 0.4s ease;
+  background-color: rgb(var(--bg));
+  color: rgb(var(--ink));
+  font-family: "Instrument Sans Variable", system-ui, sans-serif;
+  font-size: 0.9375rem; /* 15px base */
+  line-height: 1.6;
   overflow-x: hidden;
-  position: relative;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-/* Subtle canvas paper texture (strictly constrained so it never overlays on footer) */
-main::before {
+::selection {
+  background: rgb(var(--marigold));
+  color: rgb(21 25 53);
+}
+
+/* Display face: Anybody has width (50–150) and weight (100–900) axes */
+.font-display {
+  font-family: "Anybody Variable", system-ui, sans-serif;
+  font-variation-settings: "wdth" 110, "wght" 800;
+  letter-spacing: -0.02em;
+}
+.font-display-wide {
+  font-variation-settings: "wdth" 140, "wght" 750;
+}
+
+/* Grain: a faint noise layer so flat color doesn't feel sterile */
+.grain::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: var(--bg-texture);
-  background-size: 16px 16px;
   pointer-events: none;
-  opacity: 0.55;
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dark .grain::after {
+  mix-blend-mode: screen;
+  opacity: 0.05;
+}
+
+/* Section heading scale, shared by every section */
+.h-section {
+  font-family: "Anybody Variable", system-ui, sans-serif;
+  font-variation-settings: "wdth" 104, "wght" 780;
+  font-size: clamp(1.85rem, 3.2vw, 2.6rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+/* Fine dot grid used behind the system map */
+.dot-grid {
+  background-image: radial-gradient(rgb(var(--line) / 0.16) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+/* Keyboard focus is always visible */
+:focus-visible {
+  outline: 2.5px solid rgb(var(--cobalt));
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+
+/* Theme switch: circular reveal via the View Transitions API */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-new(root) {
+  z-index: 9999;
+}
+::view-transition-old(root) {
   z-index: 1;
 }
 
-footer {
-  background-color: #000000 !important;
+/* Blinking caret for the terminal */
+@keyframes caret {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.caret {
+  animation: caret 1s steps(1) infinite;
+}
+
+/* Soft breathing for live status dots */
+@keyframes breathe {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.8); opacity: 0; }
+}
+.live-dot {
   position: relative;
-  z-index: 30;
+}
+.live-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: inherit;
+  animation: breathe 2s var(--ease-out) infinite;
 }
 
-.doodle-font {
-  font-family: var(--font-patrick), 'Caveat', cursive;
-}
-
-/* Steam Animation */
-@keyframes steamDrift {
-  0% {
-    transform: translateY(0) scaleX(1);
-    opacity: 0.8;
-  }
-
-  50% {
-    opacity: 0.4;
-    transform: translateY(-8px) scaleX(1.3);
-  }
-
-  100% {
-    transform: translateY(-16px) scaleX(1.6);
-    opacity: 0;
-  }
-}
-
-.steam-1 {
-  animation: steamDrift 1.8s infinite ease-out;
-}
-
-.steam-2 {
-  animation: steamDrift 2.1s infinite 0.4s ease-out;
-}
-
-.steam-3 {
-  animation: steamDrift 1.9s infinite 0.8s ease-out;
-}
-
-/* Lamp pull cord swing */
-@keyframes cordPull {
-  0% {
-    transform: translateY(0);
-  }
-
-  50% {
-    transform: translateY(12px);
-  }
-
-  100% {
-    transform: translateY(0);
-  }
-}
-
-.pulling-cord {
-  animation: cordPull 0.35s ease;
-}
-
-/* Waving arm */
-@keyframes armWave {
-
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-
-  25% {
-    transform: rotate(-10deg);
-  }
-
-  75% {
-    transform: rotate(7deg);
-  }
-}
-
-.waving-arm {
-  transform-origin: 196px 135px;
-  animation: armWave 1.4s infinite ease-in-out;
-}
-
-
-
-/* Custom scrollbars */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: rgb(var(--bg));
 }
-
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 4px;
+  background: rgb(var(--line) / 0.22);
+  border-radius: 10px;
+  border: 3px solid rgb(var(--bg));
 }
 
-[data-theme="dark"] ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  scrollbar-width: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }

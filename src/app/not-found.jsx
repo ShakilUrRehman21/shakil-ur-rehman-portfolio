@@ -2,18 +2,21 @@ import Link from "next/link";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-white">
-      <div className="p-8 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl max-w-md w-full font-mono">
-        <span className="text-4xl block mb-2 font-bold text-emerald-600 dark:text-emerald-400">404</span>
-        <h2 className="text-xl font-bold mb-2">Module Not Found</h2>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mb-6">
-          The requested system node does not exist or has been relocated.
+    <div className="min-h-screen grid place-items-center px-6 text-center bg-bg text-ink">
+      <div>
+        <p
+          className="font-display text-[clamp(7rem,28vw,18rem)] leading-[0.8] tracking-[-0.04em]"
+          style={{ fontVariationSettings: '"wdth" 150, "wght" 900' }}
+        >
+          4<span className="text-marigold">0</span>4
         </p>
+        <h1 className="mt-6 text-2xl font-semibold">This page doesn't exist</h1>
+        <p className="mt-2 text-muted">The link may be old, or the page has moved.</p>
         <Link
           href="/"
-          className="inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs tracking-tight transition-colors"
+          className="mt-8 inline-flex items-center h-12 px-6 rounded-full bg-ink text-bg font-semibold hover:bg-cobalt hover:text-white transition-colors"
         >
-          Return to Mission Control
+          Go to the home page
         </Link>
       </div>
     </div>

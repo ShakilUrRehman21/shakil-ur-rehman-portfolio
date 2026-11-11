@@ -1,56 +1,35 @@
-import { Plus_Jakarta_Sans, Patrick_Hand, JetBrains_Mono } from "next/font/google";
+import "@fontsource-variable/anybody/standard.css";
+import "@fontsource-variable/instrument-sans/standard.css";
+import "@fontsource-variable/jetbrains-mono/index.css";
 import "./globals.css";
 
-const plusJakarta = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-  variable: "--font-jakarta",
-});
-
-const patrickHand = Patrick_Hand({
-  subsets: ["latin"],
-  weight: ["400"],
-  variable: "--font-patrick",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500"],
-  variable: "--font-mono",
-});
-
 export const metadata = {
-  title: "Shakil Ur Rehman",
-  description: "Full Stack Software Engineer specializing in backend architecture, scalable APIs, and Generative AI pipelines.",
+  title: "Shakil Ur Rehman — Full-Stack Engineer",
+  description:
+    "Full Stack Software Engineer specializing in backend architecture, scalable APIs, and Generative AI pipelines.",
   icons: {
-    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='24' fill='%23059669'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-family='monospace' font-weight='bold' font-size='42' fill='%23FFFFFF'>&lt;SR/&gt;</text></svg>",
+    icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='28' fill='%23151935'/><circle cx='74' cy='26' r='9' fill='%23F5A524'/><text x='46%' y='58%' dominant-baseline='middle' text-anchor='middle' font-family='system-ui' font-weight='900' font-size='46' fill='%23EEF0F6'>SR</text></svg>",
   },
+};
+
+export const viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#EEF0F6" },
+    { media: "(prefers-color-scheme: dark)", color: "#0D1022" },
+  ],
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${plusJakarta.variable} ${patrickHand.variable} ${jetbrainsMono.variable}`} suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `(function() {
-              try {
-                var theme = localStorage.getItem('portfolio_theme');
-                if (theme === 'dark') {
-                  document.documentElement.classList.add('dark');
-                  document.documentElement.setAttribute('data-theme', 'dark');
-                } else if (theme === 'light') {
-                  document.documentElement.classList.remove('dark');
-                  document.documentElement.setAttribute('data-theme', 'light');
-                }
-              } catch (e) {}
-            })()`,
+            __html: `(function(){try{var t=localStorage.getItem('portfolio_theme');if(!t){t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}if(t==='dark'){document.documentElement.classList.add('dark')}document.documentElement.setAttribute('data-theme',t)}catch(e){}})()`,
           }}
         />
       </head>
-      <body className="antialiased selection:bg-amber-200 selection:text-black">
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
